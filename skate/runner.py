@@ -8,6 +8,9 @@ from skate.providers.ollama import OllamaProvider
 from skate.providers.openai import OpenAIProvider
 
 
+_TIMEOUT = 30.0
+
+
 def _make_provider(model: str) -> BaseProvider:
     if model.startswith("ollama/"):
         return OllamaProvider(model)
@@ -34,7 +37,7 @@ async def _run_one(
                 temperature=temperature,
                 max_tokens=max_tokens,
             ),
-            timeout=30.0,
+            timeout=_TIMEOUT,
         )
     except TimeoutError:
         return ModelResult(

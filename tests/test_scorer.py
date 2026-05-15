@@ -18,18 +18,11 @@ def _result(model: str, output: str, error: str | None = None) -> ModelResult:
     )
 
 
-def _mock_model(texts: list[str]):
-    import numpy as np
-    embeddings = np.random.rand(len(texts), 384).astype("float32")
-    mock = MagicMock()
-    mock.encode.return_value = embeddings
-    return mock, embeddings
-
-
 def test_compute_similarity_two_models():
     results = [_result("gpt-4o", "Hello world"), _result("claude", "Hello world")]
     with patch("skate.scorer._get_model") as mock_get:
         import numpy as np
+
         vec = np.ones(384, dtype="float32")
         mock_get.return_value.encode.return_value = np.stack([vec, vec])
         similarity = compute_similarity(results)
@@ -37,6 +30,25 @@ def test_compute_similarity_two_models():
     assert ("gpt-4o", "claude") in similarity
     score = similarity[("gpt-4o", "claude")]
     assert 0.0 <= score <= 1.0
+
+
+def test_compute_similarity_three_models():
+    results = [
+        _result("gpt-4o", "Hello"),
+        _result("claude", "Hello"),
+        _result("gemini", "Hello"),
+    ]
+    with patch("skate.scorer._get_model") as mock_get:
+        import numpy as np
+
+        vec = np.ones(384, dtype="float32")
+        mock_get.return_value.encode.return_value = np.stack([vec, vec, vec])
+        similarity = compute_similarity(results)
+
+    assert ("gpt-4o", "claude") in similarity
+    assert ("gpt-4o", "gemini") in similarity
+    assert ("claude", "gemini") in similarity
+    assert len(similarity) == 3
 
 
 def test_compute_similarity_skips_errors():

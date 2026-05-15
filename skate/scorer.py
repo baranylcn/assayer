@@ -24,13 +24,16 @@ def compute_similarity(results: list[ModelResult]) -> dict[tuple[str, str], floa
     if len(valid) < 2:
         return {}
 
-    from sentence_transformers import util
+    import numpy as np
+
     embeddings = _get_model().encode([r.output for r in valid], convert_to_numpy=True)
+    norms = np.linalg.norm(embeddings, axis=1, keepdims=True)
+    normalized = embeddings / np.where(norms == 0, 1, norms)
     similarity: dict[tuple[str, str], float] = {}
 
     for i in range(len(valid)):
         for j in range(i + 1, len(valid)):
-            score = float(util.cos_sim(embeddings[i], embeddings[j]))
+            score = float(np.dot(normalized[i], normalized[j]))
             similarity[(valid[i].model, valid[j].model)] = score
 
     return similarity

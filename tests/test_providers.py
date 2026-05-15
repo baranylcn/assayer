@@ -1,6 +1,7 @@
-import asyncio
 import os
+from pathlib import Path
 
+import httpx
 import pytest
 
 from skate.providers.anthropic import AnthropicProvider
@@ -8,46 +9,28 @@ from skate.providers.gemini import GeminiProvider
 from skate.providers.ollama import OllamaProvider, is_running
 from skate.providers.openai import OpenAIProvider
 
+_NONEXISTENT_CONFIG = Path("/nonexistent")
 
-def test_openai_missing_key(monkeypatch):
-    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
-    monkeypatch.setattr(
-        "skate.config._CONFIG_PATH", __import__("pathlib").Path("/nonexistent")
-    )
 
-    result = asyncio.run(OpenAIProvider("gpt-4o-mini").run("hello"))
+@pytest.mark.parametrize(
+    "provider_cls, env_var, model",
+    [
+        (OpenAIProvider, "OPENAI_API_KEY", "gpt-4o-mini"),
+        (AnthropicProvider, "ANTHROPIC_API_KEY", "claude-haiku-4-5-20251001"),
+        (GeminiProvider, "GEMINI_API_KEY", "gemini-1.5-flash"),
+    ],
+)
+async def test_missing_api_key(provider_cls, env_var, model, monkeypatch):
+    monkeypatch.delenv(env_var, raising=False)
+    monkeypatch.setattr("skate.config._CONFIG_PATH", _NONEXISTENT_CONFIG)
 
-    assert result.error == "OPENAI_API_KEY is not set"
+    result = await provider_cls(model).run("hello")
+
+    assert result.error == f"{env_var} is not set"
     assert result.output == ""
 
 
-def test_anthropic_missing_key(monkeypatch):
-    monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-    monkeypatch.setattr(
-        "skate.config._CONFIG_PATH", __import__("pathlib").Path("/nonexistent")
-    )
-
-    result = asyncio.run(AnthropicProvider("claude-haiku-4-5-20251001").run("hello"))
-
-    assert result.error == "ANTHROPIC_API_KEY is not set"
-    assert result.output == ""
-
-
-def test_gemini_missing_key(monkeypatch):
-    monkeypatch.delenv("GEMINI_API_KEY", raising=False)
-    monkeypatch.setattr(
-        "skate.config._CONFIG_PATH", __import__("pathlib").Path("/nonexistent")
-    )
-
-    result = asyncio.run(GeminiProvider("gemini-1.5-flash").run("hello"))
-
-    assert result.error == "GEMINI_API_KEY is not set"
-    assert result.output == ""
-
-
-def test_ollama_not_running(monkeypatch):
-    import httpx
-
+async def test_ollama_not_running(monkeypatch):
     class _FailClient:
         def __init__(self, *args, **kwargs):
             pass
@@ -60,7 +43,7 @@ def test_ollama_not_running(monkeypatch):
 
     monkeypatch.setattr("skate.providers.ollama.httpx.AsyncClient", _FailClient)
 
-    result = asyncio.run(OllamaProvider("ollama/llama3").run("hello"))
+    result = await OllamaProvider("ollama/llama3").run("hello")
 
     assert result.error is not None
     assert "11434" in result.error or "Ollama" in result.error
@@ -68,11 +51,11 @@ def test_ollama_not_running(monkeypatch):
 
 
 @pytest.mark.integration
-def test_openai_integration():
+async def test_openai_integration():
     if not os.environ.get("OPENAI_API_KEY"):
         pytest.skip("OPENAI_API_KEY not set")
 
-    result = asyncio.run(OpenAIProvider("gpt-4o-mini").run("Say hello in one word."))
+    result = await OpenAIProvider("gpt-4o-mini").run("Say hello in one word.")
 
     assert result.error is None
     assert len(result.output) > 0
@@ -80,13 +63,11 @@ def test_openai_integration():
 
 
 @pytest.mark.integration
-def test_anthropic_integration():
+async def test_anthropic_integration():
     if not os.environ.get("ANTHROPIC_API_KEY"):
         pytest.skip("ANTHROPIC_API_KEY not set")
 
-    result = asyncio.run(
-        AnthropicProvider("claude-haiku-4-5-20251001").run("Say hello in one word.")
-    )
+    result = await AnthropicProvider("claude-haiku-4-5-20251001").run("Say hello in one word.")
 
     assert result.error is None
     assert len(result.output) > 0
@@ -94,13 +75,11 @@ def test_anthropic_integration():
 
 
 @pytest.mark.integration
-def test_gemini_integration():
+async def test_gemini_integration():
     if not os.environ.get("GEMINI_API_KEY"):
         pytest.skip("GEMINI_API_KEY not set")
 
-    result = asyncio.run(
-        GeminiProvider("gemini-1.5-flash").run("Say hello in one word.")
-    )
+    result = await GeminiProvider("gemini-1.5-flash").run("Say hello in one word.")
 
     assert result.error is None
     assert len(result.output) > 0
@@ -108,11 +87,11 @@ def test_gemini_integration():
 
 
 @pytest.mark.integration
-def test_ollama_integration():
-    if not asyncio.run(is_running()):
+async def test_ollama_integration():
+    if not await is_running():
         pytest.skip("Ollama is not running")
 
-    result = asyncio.run(OllamaProvider("ollama/llama3").run("Say hello in one word."))
+    result = await OllamaProvider("ollama/llama3").run("Say hello in one word.")
 
     assert result.error is None
     assert len(result.output) > 0

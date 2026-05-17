@@ -5,20 +5,27 @@ Run a prompt across multiple LLMs and compare outputs side by side in the termin
 ## Installation
 
 ```bash
-pip install -e ".[dev]"
+pip install skate
+```
+
+Similarity scoring requires the optional `score` extra:
+
+```bash
+pip install "skate[score]"
 ```
 
 Python 3.11 or newer is required.
+
+> **Contributing?** See [CONTRIBUTING.md](CONTRIBUTING.md) for setup, code style, and PR guidelines.
 
 ## Supported Providers
 
 Skate supports multiple LLM providers through a unified interface:
 
 - **OpenAI**: All GPT models.
-- **Anthropic**: Claude 3, 3.5, and 4.5 models.
+- **Anthropic**: Claude 4.5 models (Opus, Sonnet, Haiku).
 - **Google Gemini**: 1.5 Pro and Flash models.
 - **Ollama**: Local models running on your machine.
-- **Generic**: Any provider supported by LiteLLM can be configured.
 
 ## Configuration
 
@@ -64,6 +71,7 @@ skate run --prompt-file prompt.txt --models gpt-4o,ollama/llama3
 skate run "prompt" --models gpt-4o,claude-sonnet-4-5 --score
 skate run "prompt" --models gpt-4o,claude-sonnet-4-5 --judge gpt-4o --judge-criteria "clarity,brevity"
 skate run "prompt" --models gpt-4o,claude-sonnet-4-5 --output results.json
+skate run "prompt" --models gpt-4o,claude-sonnet-4-5 --output results.csv
 skate run "prompt with {var}" --models gpt-4o --var key=value
 ```
 
@@ -129,7 +137,7 @@ No API key needed. Start Ollama and use the `ollama/` prefix:
 
 ```bash
 ollama serve
-skate run "prompt" --models ollama/llama3,ollama/mistral
+skate run "prompt" --models ollama/llama3,ollama/mistral,ollama/phi3
 ```
 
 ## Scoring

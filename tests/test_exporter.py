@@ -109,3 +109,26 @@ def test_export_unknown_extension_writes_json(tmp_path):
 
     data = json.loads(path.read_text(encoding="utf-8"))
     assert len(data) == 2
+
+def test_export_csv_empty_results_does_not_crash(tmp_path):
+    path = tmp_path / "results.csv"
+    export([], str(path))  # should not raise
+
+
+def test_export_csv_empty_results_has_header(tmp_path):
+    path = tmp_path / "results.csv"
+    export([], str(path))
+
+    with path.open(encoding="utf-8") as f:
+        reader = csv.DictReader(f)
+        assert set(reader.fieldnames) == _EXPECTED_FIELDS
+        rows = list(reader)
+    assert rows == []
+
+
+def test_export_json_empty_results(tmp_path):
+    path = tmp_path / "results.json"
+    export([], str(path))
+
+    data = json.loads(path.read_text(encoding="utf-8"))
+    assert data == []

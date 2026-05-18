@@ -61,6 +61,7 @@ def cli() -> None:
 @click.option(
     "--judge-criteria", default=None, help="Comma-separated evaluation criteria."
 )
+@click.option("--timeout", type=float, default=30.0, help="Per-model timeout in seconds (default: 30).")
 def run(
     prompt: str | None,
     models: str,
@@ -73,6 +74,7 @@ def run(
     score: bool,
     judge: str | None,
     judge_criteria: str | None,
+    timeout: float,
 ) -> None:
     if prompt_file:
         with open(prompt_file) as f:
@@ -113,6 +115,7 @@ def run(
             system=system,
             temperature=temperature,
             max_tokens=max_tokens,
+            timeout=timeout,
         )
     )
     similarity = compute_similarity(results) if score else None

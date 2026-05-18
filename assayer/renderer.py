@@ -7,6 +7,7 @@ from rich.text import Text
 
 from assayer.judge import JudgeResult
 from assayer.models import ModelResult
+from assayer.scorer import readability_stats
 
 console = Console()
 
@@ -51,6 +52,7 @@ def render_run(
 
     if similarity is not None:
         render_similarity_matrix(results, similarity)
+        render_readability(results)
 
     if judge_result is not None:
         render_judge(judge_result)
@@ -79,6 +81,29 @@ def render_similarity_matrix(
                 )
                 cells.append(f"{similarity.get(key, 0.0):.3f}")
         table.add_row(row_model, *cells)
+
+    console.print(table)
+
+
+def render_readability(results: list[ModelResult]) -> None:
+    valid = [r for r in results if not r.error and r.output]
+    if not valid:
+        return
+
+    table = Table(title="Readability", show_header=True)
+    table.add_column("Model", style="bold")
+    table.add_column("Words", justify="right")
+    table.add_column("Sentences", justify="right")
+    table.add_column("Avg sentence length", justify="right")
+
+    for r in valid:
+        stats = readability_stats(r.output)
+        table.add_row(
+            r.model,
+            str(int(stats["word_count"])),
+            str(int(stats["sentence_count"])),
+            f"{stats['avg_sentence_length']:.1f}",
+        )
 
     console.print(table)
 

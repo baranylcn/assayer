@@ -2,8 +2,9 @@ from __future__ import annotations
 
 import json
 import re
-import sys
 from dataclasses import dataclass, field
+
+import click
 
 from assayer.models import ModelResult
 from assayer.runner import _make_provider
@@ -72,7 +73,7 @@ async def run_judge(
 ) -> JudgeResult | None:
     valid = [r for r in results if not r.error and r.output]
     if len(valid) < 2:
-        print("Judge skipped: fewer than 2 successful results.", file=sys.stderr)
+        click.echo("Judge skipped: fewer than 2 successful results.", err=True)
         return None
 
     judge_prompt = _build_prompt(prompt, valid, criteria)
@@ -81,15 +82,15 @@ async def run_judge(
     try:
         result = await provider.run(judge_prompt)
     except Exception as exc:
-        print(f"Judge call failed: {exc}", file=sys.stderr)
+        click.echo(f"Judge call failed: {exc}", err=True)
         return None
 
     if result.error:
-        print(f"Judge call failed: {result.error}", file=sys.stderr)
+        click.echo(f"Judge call failed: {result.error}", err=True)
         return None
 
     try:
         return _parse_response(result.output)
     except Exception as exc:
-        print(f"Judge response could not be parsed: {exc}", file=sys.stderr)
+        click.echo(f"Judge response could not be parsed: {exc}", err=True)
         return None

@@ -8,9 +8,6 @@ from assayer.providers.ollama import OllamaProvider
 from assayer.providers.openai import OpenAIProvider
 
 
-_TIMEOUT = 30.0
-
-
 def _make_provider(model: str) -> BaseProvider:
     if model.startswith("ollama/"):
         return OllamaProvider(model)
@@ -27,6 +24,7 @@ async def _run_one(
     system: str | None,
     temperature: float | None,
     max_tokens: int | None,
+    timeout: float = 30.0,
 ) -> ModelResult:
     provider = _make_provider(model)
     try:
@@ -37,7 +35,7 @@ async def _run_one(
                 temperature=temperature,
                 max_tokens=max_tokens,
             ),
-            timeout=_TIMEOUT,
+            timeout=timeout,
         )
     except TimeoutError:
         return ModelResult(
@@ -45,9 +43,9 @@ async def _run_one(
             output="",
             tokens_input=0,
             tokens_output=0,
-            latency_seconds=30.0,
+            latency_seconds=timeout,
             cost_usd=0.0,
-            error="Request timed out after 30 seconds",
+            error=f"Request timed out after {timeout} seconds",
         )
 
 
@@ -57,9 +55,10 @@ async def run_all(
     system: str | None = None,
     temperature: float | None = None,
     max_tokens: int | None = None,
+    timeout: float = 30.0,
 ) -> list[ModelResult]:
     tasks = [
-        _run_one(model, prompt, system, temperature, max_tokens)
+        _run_one(model, prompt, system, temperature, max_tokens, timeout)
         for model in models
     ]
     return list(await asyncio.gather(*tasks))

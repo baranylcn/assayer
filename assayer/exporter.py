@@ -4,6 +4,16 @@ from pathlib import Path
 
 from assayer.models import ModelResult
 
+_FIELDS = [
+    "model",
+    "output",
+    "tokens_input",
+    "tokens_output",
+    "latency_seconds",
+    "cost_usd",
+    "error",
+]
+
 
 def _to_dict(result: ModelResult) -> dict:
     return {
@@ -23,9 +33,10 @@ def export(results: list[ModelResult], path: str) -> None:
 
     if dest.suffix.lower() == ".csv":
         with dest.open("w", newline="", encoding="utf-8") as f:
-            writer = csv.DictWriter(f, fieldnames=list(records[0].keys()))
+            writer = csv.DictWriter(f, fieldnames=_FIELDS)
             writer.writeheader()
-            writer.writerows(records)
+            if records:
+                writer.writerows(records)
     else:
         dest.write_text(
             json.dumps(records, indent=2, ensure_ascii=False), encoding="utf-8"

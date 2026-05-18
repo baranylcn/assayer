@@ -116,9 +116,8 @@ async def test_run_one_records_timeout(monkeypatch):
         )
 
     monkeypatch.setattr(OpenAIProvider, "run", _slow_run)
-    monkeypatch.setattr("assayer.runner._TIMEOUT", 0.05)
 
-    result = await _run_one("gpt-4o-mini", "test", None, None, None)
+    result = await _run_one("gpt-4o-mini", "test", None, None, None, timeout=0.05)
 
     assert result.error is not None
     assert "timed out" in result.error

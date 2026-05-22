@@ -73,6 +73,20 @@ def test_readability_stats_basic():
     assert stats["avg_sentence_length"] == pytest.approx(8 / 3)
 
 
+@pytest.mark.parametrize(
+    ("text", "sentence_count"),
+    [
+        ("Dr. Smith scored 3.5. Well done.", 2),
+        ("Visit example.com for details.", 1),
+        ("The price is $3.99. Cheap!", 2),
+        ("Mr. Jones paid at 4.30 p.m. Done?", 2),
+    ],
+)
+def test_readability_stats_ignores_non_boundary_periods(text, sentence_count):
+    stats = readability_stats(text)
+    assert stats["sentence_count"] == sentence_count
+
+
 def test_readability_stats_empty():
     stats = readability_stats("")
     assert stats["word_count"] == 0

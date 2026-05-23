@@ -1,5 +1,10 @@
 # Assayer
 
+[![CI](https://github.com/PracticalMind/assayer/actions/workflows/ci.yml/badge.svg)](https://github.com/PracticalMind/assayer/actions/workflows/ci.yml)
+[![PyPI](https://img.shields.io/pypi/v/assayer)](https://pypi.org/project/assayer/)
+[![Python](https://img.shields.io/pypi/pyversions/assayer)](https://pypi.org/project/assayer/)
+[![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
 Send a prompt to multiple language models in parallel and compare their outputs in the terminal. Useful for evaluating which model handles a given task better, measuring semantic similarity between responses, or running an LLM-as-judge evaluation - without leaving the shell.
 
 ![demo](demo.gif)

@@ -1,15 +1,20 @@
 import asyncio
 import logging
+import os
 import sys
+import warnings
 
 import click
 import httpx
 
 from assayer.config import get_api_key, set_api_key, show_config
 
-logging.getLogger("LiteLLM").addFilter(
-    type("_F", (logging.Filter,), {"filter": lambda _, r: r.levelno >= logging.ERROR})()
-)
+for _noisy_logger in ("LiteLLM", "litellm", "huggingface_hub"):
+    logging.getLogger(_noisy_logger).setLevel(logging.ERROR)
+warnings.filterwarnings("ignore", message=".*unauthenticated.*")
+os.environ.setdefault("TQDM_DISABLE", "1")
+os.environ.setdefault("LITELLM_LOG", "ERROR")
+os.environ.setdefault("HF_HUB_VERBOSITY", "error")
 
 _KNOWN_MODELS: dict[str, list[str]] = {
     "openai": [

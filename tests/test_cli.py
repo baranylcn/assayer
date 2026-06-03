@@ -49,6 +49,30 @@ def test_run_var_missing_template_key_exits_with_error():
     assert "missing" in result.output
 
 
+def test_run_warns_when_prompt_and_prompt_file_are_both_supplied(tmp_path):
+    prompt_file = tmp_path / "prompt.txt"
+    prompt_file.write_text("prompt from file")
+
+    result = CliRunner().invoke(
+        cli,
+        [
+            "run",
+            "inline prompt",
+            "--prompt-file",
+            str(prompt_file),
+            "--models",
+            "gpt-4o",
+            "--var",
+            "BADFORMAT",
+        ],
+    )
+
+    assert (
+        "Warning: --prompt-file takes precedence; the inline prompt is ignored."
+        in result.output
+    )
+
+
 # ---------------------------------------------------------------------------
 # run — successful flow
 # ---------------------------------------------------------------------------

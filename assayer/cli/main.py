@@ -82,6 +82,12 @@ def run(
     timeout: float,
 ) -> None:
     if prompt_file:
+        if prompt:
+            click.echo(
+                "Warning: --prompt-file takes precedence; "
+                "the inline prompt is ignored.",
+                err=True,
+            )
         with open(prompt_file) as f:
             prompt_text = f.read().strip()
     elif prompt:

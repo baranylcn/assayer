@@ -24,7 +24,7 @@ You can verify or update your GitHub primary email at **Settings → Emails**: h
 
 1. **Fork and clone** the repository:
    ```bash
-   git clone https://github.com/PracticalMind/assayer.git
+   git clone https://github.com/baranylcn/assayer.git
    cd assayer
    ```
 

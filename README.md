@@ -1,6 +1,6 @@
 # Assayer
 
-[![CI](https://github.com/PracticalMind/assayer/actions/workflows/ci.yml/badge.svg)](https://github.com/PracticalMind/assayer/actions/workflows/ci.yml)
+[![CI](https://github.com/baranylcn/assayer/actions/workflows/ci.yml/badge.svg)](https://github.com/baranylcn/assayer/actions/workflows/ci.yml)
 [![PyPI](https://img.shields.io/pypi/v/assayer)](https://pypi.org/project/assayer/)
 [![Python](https://img.shields.io/pypi/pyversions/assayer)](https://pypi.org/project/assayer/)
 [![License: MIT](https://img.shields.io/badge/license-MIT-blue)](LICENSE)

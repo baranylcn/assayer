@@ -1,7 +1,6 @@
 import json
 from unittest.mock import patch
 
-
 from assayer.judge import JudgeResult, _build_prompt, _parse_response, run_judge
 from assayer.models import ModelResult
 

@@ -195,7 +195,7 @@ def _check_ollama() -> None:
             click.echo("No local models found.")
     except httpx.ConnectError:
         click.echo("Ollama is not running at localhost:11434.", err=True)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - a diagnostic command reports, never crashes
         click.echo(f"Ollama check failed: {exc}", err=True)
 
 

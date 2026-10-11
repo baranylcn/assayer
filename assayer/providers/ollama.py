@@ -55,7 +55,7 @@ class OllamaProvider(BaseProvider):
                 cost_usd=0.0,
                 error="Ollama is not running at localhost:11434",
             )
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - any provider failure becomes a result error
             return ModelResult(
                 model=f"ollama/{self.model}",
                 output="",

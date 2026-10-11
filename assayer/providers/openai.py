@@ -44,7 +44,7 @@ class OpenAIProvider(BaseProvider):
         start = time.perf_counter()
         try:
             response = await litellm.acompletion(**kwargs)
-        except Exception as exc:
+        except Exception as exc:  # noqa: BLE001 - any provider failure becomes a result error
             return ModelResult(
                 model=self.model,
                 output="",

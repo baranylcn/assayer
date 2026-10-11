@@ -81,7 +81,7 @@ async def run_judge(
 
     try:
         result = await provider.run(judge_prompt)
-    except Exception as exc:
+    except Exception as exc:  # noqa: BLE001 - a judge failure must not abort the run
         click.echo(f"Judge call failed: {exc}", err=True)
         return None
 
@@ -91,6 +91,6 @@ async def run_judge(
 
     try:
         return _parse_response(result.output)
-    except Exception as exc:
+    except (ValueError, KeyError, TypeError) as exc:
         click.echo(f"Judge response could not be parsed: {exc}", err=True)
         return None

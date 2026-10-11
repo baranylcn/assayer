@@ -90,7 +90,7 @@ def test_run_basic_calls_run_all():
 
     assert result.exit_code == 0
     mock_run_all.assert_called_once()
-    args, kwargs = mock_run_all.call_args
+    args, _kwargs = mock_run_all.call_args
     assert args[0] == "hello"
     assert args[1] == ["gpt-4o", "claude-sonnet-4-5"]
 
